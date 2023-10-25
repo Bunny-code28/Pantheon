@@ -1,31 +1,45 @@
-import yfinance as yf
-from keras.models import Sequential
-from keras.layers import LSTM, Dense
-import numpy as np
-from fredapi import Fred
+from transformers import TextDataset, DataCollatorForLanguageModeling
+from transformers import Trainer, TrainingArguments, GPT2LMHeadModel, GPT2Tokenizer
 
-def get_fred_data(fred_api_key):
-    # Get the FRED API URL
-    url = f"https://api.stlouisfed.org/fred/series/observations?series_id={fred_api_key}"
+def load_dataset(train_path):
+    return TextDataset(
+        tokenizer=tokenizer,
+        file_path=train_path,
+        block_size=128,
+    )
 
-    # Remove the space character from the URL
-    url = url.replace(" ", "%20")
+if __name__ == '__main__':
+    # Initialize the GPT-2 tokenizer and model
+    tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
+    model = GPT2LMHeadModel.from_pretrained("gpt2")
 
-    # Get the economic data from the FRED API
-    interest_rates = fred.get_series(url)
+    # Load the training dataset
+    train_dataset = load_dataset("train.txt")
 
-    return interest_rates
+    # Data collator
+    data_collator = DataCollatorForLanguageModeling(
+        tokenizer=tokenizer, mlm=False,
+    )
 
+    # Initialize Trainer
+    training_args = TrainingArguments(
+        output_dir="./output",
+        overwrite_output_dir=True,
+        num_train_epochs=1,
+        per_device_train_batch_size=32,
+        save_steps=10_000,
+        save_total_limit=2,
+    )
 
-def train_model_on_all_stocks():
-    # Get a list of all the available stocks
-    stocks = yf.Tickers('SPY').symbols
+    trainer = Trainer(
+        model=model,
+        args=training_args,
+        data_collator=data_collator,
+        train_dataset=train_dataset,
+    )
 
-    # Train the model on each stock
-    for stock in stocks:
-        model = train_model(stock)
+    # Train the model
+    trainer.train()
 
-    return model
-
-# Train the model on all the available stocks
-model = train_model_on_all_stocks()
+    # Save the model
+    model.save_pretrained("./output")
