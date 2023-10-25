@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bank Server Status</title>
+</head>
+<body>
+    <table id="statusTable">
+        <tr>
+            <th>Bank</th>
+            <th>Status</th>
+        </tr>
+        <!-- Rows will be filled by JavaScript -->
+    </table>
+    <script src="script.js"></script>
+</body>
+</html>

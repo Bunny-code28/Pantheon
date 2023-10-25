@@ -1,0 +1,12 @@
+fetch('/api/bank-status')
+    .then(response => response.json())
+    .then(data => {
+        const table = document.getElementById('statusTable');
+        for (const bank in data) {
+            const row = table.insertRow();
+            const cell1 = row.insertCell(0);
+            const cell2 = row.insertCell(1);
+            cell1.innerHTML = bank;
+            cell2.innerHTML = data[bank] ? 'Up' : 'Down';
+        }
+    });

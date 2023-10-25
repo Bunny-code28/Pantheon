@@ -1,0 +1,18 @@
+import requests
+
+banks = {
+    'SBI': 'https://www.onlinesbi.com',
+    'Axis Bank': 'https://www.axisbank.com',
+    'HDFC Bank': 'https://www.hdfcbank.com'
+}
+
+def check_server_status(url):
+    try:
+        response = requests.get(url, timeout=5)
+        return response.status_code == 200
+    except requests.ConnectionError:
+        return False
+
+for bank, url in banks.items():
+    status = check_server_status(url)
+    print(f'{bank} server is {"up" if status else "down"}')
